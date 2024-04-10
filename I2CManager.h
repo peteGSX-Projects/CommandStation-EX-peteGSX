@@ -26,6 +26,13 @@
 #include "defines.h"
 #include "DIAG.h"
 
+#if defined(ARDUINO_ARCH_STM32)
+#include <SPI.h>
+#include "RF24.h"
+#include "RF24Network.h"
+#include "RF24Mesh.h"
+#endif
+
 /* 
  * Manager for I2C communications.  For portability, it allows use 
  * of the Wire class, but also has a native implementation for AVR
@@ -142,6 +149,7 @@
 // Currently only one bus supported, and one instance of I2CManager to handle it.
 enum I2CBus : uint8_t {
     I2CBus_0 = 0,
+    I2CBus_10 = 10,   // RF24Mesh
 };
 
 // Currently I2CAddress supports one I2C bus, with up to eight
