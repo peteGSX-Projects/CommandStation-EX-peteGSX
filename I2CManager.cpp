@@ -43,6 +43,26 @@
 #include "I2CManager_Wire.h"      // Other platforms
 #endif
 
+/*****************************************************************************
+ *  SPI pin definitions for nRF24L01 connection
+ * 
+ *  This will need to move somewhere more appropriate 
+ *****************************************************************************/
+#if defined(ARDUINO_NUCLEO_F411RE)
+#define CS_PIN PB6
+#define SCK_PIN PA5
+#define MISO_PIN PA6
+#define MOSI_PIN PA7
+#define CE_PIN PC7
+
+RF24 rf24Radio(CE_PIN, CS_PIN);
+RF24Network rf24Network(rf24Radio);
+RF24Mesh rf24Mesh(rf24Radio, rf24Network);
+
+unsigned long lastNodeDisplay = 0;
+unsigned long nodeDisplayDelay = 5000;
+#endif
+
 
 // Helper function for listing device types
 static const FSH * guessI2CDeviceType(uint8_t address) {
@@ -194,6 +214,37 @@ uint8_t I2CManagerClass::checkAddress(I2CAddress address) {
   return rb.wait();
 }
 
+/***************************************************************************
+ *  RF24Mesh testing on F411RE only
+ ***************************************************************************/
+#if defined(ARDUINO_NUCLEO_F411RE)
+void I2CManagerClass::setupRF24Mesh() {
+  rf24Mesh.setNodeID(0);
+  DIAG(F("RF24Mesh master setup, node ID %d"), rf24Mesh.getNodeID());
+  rf24Radio.begin();
+  rf24Radio.setPALevel(RF24_PA_MIN, 0);
+  if (!rf24Mesh.begin()) {
+    DIAG(F("Radio hardware not responding"));
+    while(1) {}
+  } else {
+    DIAG(F("RF24Mesh online"));
+  }
+}
+
+void I2CManagerClass::processRF24Mesh() {
+  rf24Mesh.update();
+  rf24Mesh.DHCP();
+  if (millis() - lastNodeDisplay > nodeDisplayDelay) {
+    lastNodeDisplay = millis();
+    DIAG(F("-----------------------------"));
+    DIAG(F("RF24Mesh nodes NodeID|Address"));
+    for (uint8_t i = 0; i < rf24Mesh.addrListTop; i++) {
+      DIAG(F("%d|%d"), rf24Mesh.addrList[i].nodeID, rf24Mesh.addrList[i].address);
+    }
+    DIAG(F("-----------------------------"));
+  }
+}
+#endif
 
 /***************************************************************************
  *  Write a transmission to I2C using a list of data (blocking operation)

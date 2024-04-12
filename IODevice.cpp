@@ -51,6 +51,10 @@ void IODevice::begin() {
   // Initialise the IO subsystem defaults
   ArduinoPins::create(2, NUM_DIGITAL_PINS-2);  // Reserve pins for direct access
 
+#if defined(ARDUINO_NUCLEO_F411RE)
+  I2CManagerClass::setupRF24Mesh();
+#endif
+
   // Call user's halSetup() function (if defined in the build in myHal.cpp).
   //  The contents will depend on the user's system hardware configuration.
   //  The myHal.cpp file is a standard C++ module so has access to all of the DCC++EX APIs.
@@ -107,6 +111,10 @@ void IODevice::reset() {
 // doesn't need to invoke it.
 void IODevice::loop() {
   unsigned long currentMicros = micros();
+  
+#if defined(ARDUINO_NUCLEO_F411RE)
+  I2CManagerClass::processRF24Mesh();
+#endif
   
   IODevice *lastLoopDevice = _nextLoopDevice;  // So we know when to stop...
   // Loop through devices until we find one ready to be serviced.
