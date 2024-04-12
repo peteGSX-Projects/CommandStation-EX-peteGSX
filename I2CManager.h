@@ -26,11 +26,20 @@
 #include "defines.h"
 #include "DIAG.h"
 
-#if defined(ARDUINO_ARCH_STM32)
+/*****************************************************************************
+ *  RF24Mesh support
+ * 
+ *  Testing on F411RE only, this will need to move somewhere more appropriate
+ *****************************************************************************/
+#if defined(ARDUINO_NUCLEO_F411RE)
 #include <SPI.h>
 #include "RF24.h"
 #include "RF24Network.h"
 #include "RF24Mesh.h"
+
+extern RF24 rf24Radio;
+extern RF24Network rf24Network;
+extern RF24Mesh rf24Mesh;
 #endif
 
 /* 
@@ -477,6 +486,14 @@ public:
   // Expand error codes into text.  Note that they are in flash so 
   // need to be printed using FSH.
   static const FSH *getErrorMessage(uint8_t status);
+
+#if defined(ARDUINO_NUCLEO_F411RE)
+  // Method to setup RF24Mesh, only on F411RE for testing
+  static void setupRF24Mesh();
+
+  // Method to check RF24Mesh for updates and run DHCP process
+  static void processRF24Mesh();
+#endif
 
 private:
   bool _beginCompleted = false;
