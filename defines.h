@@ -239,4 +239,20 @@
   #endif
 #endif
 
+////////////////////////////////////////////////////////////////////////////////
+//
+// Define RF24_ENABLE if using a uC that supports this capability.
+// Also define pins for the radio connections - should this be elsewhere?
+// 
+#if defined(ARDUINO_NUCLEO_F411RE)
+#define RF24_ENABLE
+#define CS_PIN PB12   // PB6
+#define SCK_PIN PB13  // PA5
+#define MISO_PIN PB14 // PA6
+#define MOSI_PIN PB15 // PA7
+#define CE_PIN PB2    // PC7
+#else
+#undef RF24_ENABLE
+#endif
+
 #endif
