@@ -31,7 +31,7 @@
  * 
  *  Testing on F411RE only, this will need to move somewhere more appropriate
  *****************************************************************************/
-#if defined(ARDUINO_NUCLEO_F411RE)
+#if defined(RF24_ENABLE)
 #include <SPI.h>
 #include "RF24.h"
 #include "RF24Network.h"
@@ -487,7 +487,7 @@ public:
   // need to be printed using FSH.
   static const FSH *getErrorMessage(uint8_t status);
 
-#if defined(ARDUINO_NUCLEO_F411RE)
+#if defined(RF24_ENABLE)
   // Method to setup RF24Mesh, only on F411RE for testing
   static void setupRF24Mesh();
 

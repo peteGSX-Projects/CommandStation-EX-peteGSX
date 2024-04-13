@@ -48,16 +48,12 @@
  * 
  *  This will need to move somewhere more appropriate 
  *****************************************************************************/
-#if defined(ARDUINO_NUCLEO_F411RE)
-#define CS_PIN PB6
-#define SCK_PIN PA5
-#define MISO_PIN PA6
-#define MOSI_PIN PA7
-#define CE_PIN PC7
-
+#if defined(RF24_ENABLE)
 RF24 rf24Radio(CE_PIN, CS_PIN);
 RF24Network rf24Network(rf24Radio);
 RF24Mesh rf24Mesh(rf24Radio, rf24Network);
+
+SPIClass SPI_PINS(MOSI_PIN, MISO_PIN, SCK_PIN, CS_PIN);
 
 unsigned long lastNodeDisplay = 0;
 unsigned long nodeDisplayDelay = 5000;
@@ -217,11 +213,13 @@ uint8_t I2CManagerClass::checkAddress(I2CAddress address) {
 /***************************************************************************
  *  RF24Mesh testing on F411RE only
  ***************************************************************************/
-#if defined(ARDUINO_NUCLEO_F411RE)
+#if defined(RF24_ENABLE)
 void I2CManagerClass::setupRF24Mesh() {
+  DIAG(F("Using SPI pins MOSI|MISO|SCK|CS|CE %d|%d|%d|%d|%d"), MOSI_PIN, MISO_PIN, SCK_PIN, CS_PIN, CE_PIN);
+  SPI_PINS.begin();
   rf24Mesh.setNodeID(0);
   DIAG(F("RF24Mesh master setup, node ID %d"), rf24Mesh.getNodeID());
-  rf24Radio.begin();
+  rf24Radio.begin(&SPI_PINS);
   rf24Radio.setPALevel(RF24_PA_MIN, 0);
   if (!rf24Mesh.begin()) {
     DIAG(F("Radio hardware not responding"));
